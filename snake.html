@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snake — GameHub</title>
+    <link rel="stylesheet" href="js/game-common.css" />
+  </head>
+  <body class="gh-game">
+    <div class="gh-game-wrap">
+      <header class="gh-game-header">
+        <h1>🐍 SNAKE</h1>
+        <div class="gh-hud">
+          <span>Score: <b id="score">0</b></span>
+          <span>Combo: <b id="combo">0</b></span>
+          <span>Coins: <b id="coins">0</b></span>
+          <span>Level: <b id="level">1</b></span>
+        </div>
+        <a class="gh-back" href="Index.html">← Hub</a>
+      </header>
+      <canvas id="game" class="gh-canvas" width="600" height="600"></canvas>
+      <canvas id="minimap" width="120" height="120" style="position:fixed;bottom:20px;right:20px;border:2px solid rgba(0,247,255,0.3);border-radius:8px;background:rgba(0,0,0,0.7);z-index:50"></canvas>
+    </div>
+    <script src="js/core/SaveManager.js"></script>
+    <script src="js/core/XPManager.js"></script>
+    <script src="js/core/AchievementManager.js"></script>
+    <script src="js/core/ShopManager.js"></script>
+    <script src="js/core/QuestManager.js"></script>
+    <script src="js/core/BattlePassManager.js"></script>
+    <script src="js/core/LeaderboardManager.js"></script>
+    <script src="js/core/AudioManager.js"></script>
+    <script src="js/core/GameBridge.js"></script>
+    <script src="snake.js"></script>
+  </body>
+</html>

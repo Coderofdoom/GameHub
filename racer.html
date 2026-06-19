@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Racer — GameHub</title>
+    <link rel="stylesheet" href="js/game-common.css" />
+  </head>
+  <body class="gh-game">
+    <div class="gh-game-wrap" style="padding:0">
+      <header class="gh-game-header">
+        <h1>🏎️ RACER</h1>
+        <div class="gh-hud">
+          <span>Score: <b id="hud-score">0</b></span>
+          <span>Track: <b id="hud-track">Neon City</b></span>
+          <span>Drifts: <b id="hud-drifts">0</b></span>
+        </div>
+        <a class="gh-back" href="Index.html">← Hub</a>
+      </header>
+      <canvas id="game" class="gh-canvas" style="width:100%;height:calc(100vh - 80px);border-radius:0"></canvas>
+    </div>
+    <script src="js/core/SaveManager.js"></script>
+    <script src="js/core/XPManager.js"></script>
+    <script src="js/core/AchievementManager.js"></script>
+    <script src="js/core/ShopManager.js"></script>
+    <script src="js/core/QuestManager.js"></script>
+    <script src="js/core/BattlePassManager.js"></script>
+    <script src="js/core/LeaderboardManager.js"></script>
+    <script src="js/core/AudioManager.js"></script>
+    <script src="js/core/GameBridge.js"></script>
+    <script src="racer.js"></script>
+  </body>
+</html>

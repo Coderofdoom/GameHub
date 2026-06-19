@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BlockCraft – GameHub</title>
+    <style>
+      /* ===================== RESET ==================== */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* ===================== BASE ===================== */
+      body {
+        background: #000;
+        font-family: "Courier New", monospace;
+        color: #fff;
+        overflow: hidden;
+        user-select: none;
+      }
+
+      /* ===================== CANVAS ===================== */
+      #gameCanvas {
+        display: block;
+        image-rendering: pixelated;
+      }
+
+      /* ===================== OVERLAY UI ===================== */
+      #ui {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      /* ---- Crosshair ---- */
+      #crosshair {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+      }
+      #crosshair::before,
+      #crosshair::after {
+        content: "";
+        position: absolute;
+        background: rgba(255, 255, 255, 0.85);
+      }
+      #crosshair::before {
+        width: 2px;
+        height: 100%;
+        left: 50%;
+        top: 0;
+        transform: translateX(-50%);
+      }
+      #crosshair::after {
+        width: 100%;
+        height: 2px;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+      }
+
+      /* ---- HUD Bar ---- */
+      #hud {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding-bottom: 12px;
+      }
+
+      /* ---- Hotbar ---- */
+      #hotbar {
+        display: flex;
+        gap: 4px;
+      }
+      .hotbar-slot {
+        width: 50px;
+        height: 50px;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        background: rgba(0, 0, 0, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        font-size: 9px;
+        color: #eee;
+        gap: 2px;
+        position: relative;
+      }
+      .hotbar-slot.active {
+        border-color: #fff;
+        background: rgba(255, 255, 255, 0.15);
+      }
+      .hotbar-slot canvas {
+        width: 32px;
+        height: 32px;
+        image-rendering: pixelated;
+      }
+      .slot-count {
+        position: absolute;
+        bottom: 2px;
+        right: 4px;
+        font-size: 10px;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 1px 1px 0 #000;
+      }
+
+      /* ---- Stats bar ---- */
+      #stats-bar {
+        display: flex;
+        gap: 16px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+      }
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      /* ---- Health & Hunger bars ---- */
+      #bars {
+        display: flex;
+        gap: 8px;
+      }
+      .bar-row {
+        display: flex;
+        gap: 2px;
+      }
+      .heart,
+      .hunger-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 13px;
+        line-height: 16px;
+        text-align: center;
+      }
+
+      /* ---- Mini-map ---- */
+      #minimap {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: rgba(0, 0, 0, 0.6);
+        image-rendering: pixelated;
+      }
+
+      /* ---- Debug overlay ---- */
+      #debug {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        font-size: 11px;
+        color: #0f0;
+        line-height: 1.7;
+        pointer-events: none;
+        text-shadow: 1px 1px 0 #000;
+        display: none;
+      }
+      #debug.visible {
+        display: block;
+      }
+
+      /* ---- Day/Night indicator ---- */
+      #day-indicator {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        text-shadow: 1px 1px 0 #000;
+      }
+
+      /* ---- XP Bar ---- */
+      #xp-bar-wrap {
+        width: 182px;
+        height: 5px;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      #xp-bar-fill {
+        height: 100%;
+        background: #0f0;
+        width: 0%;
+        transition: width 0.3s;
+      }
+
+      /* ---- Inventory Screen ---- */
+      #inventory-screen {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+        pointer-events: all;
+      }
+      #inventory-screen.open {
+        display: flex;
+      }
+      #inventory-panel {
+        background: rgba(30, 30, 30, 0.95);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+        min-width: 460px;
+      }
+      #inventory-panel h2 {
+        text-align: center;
+        margin-bottom: 14px;
+        letter-spacing: 2px;
+        color: #0ff;
+        font-size: 16px;
+      }
+      .inv-grid {
+        display: grid;
+        grid-template-columns: repeat(9, 48px);
+        gap: 4px;
+        margin-bottom: 10px;
+      }
+      .inv-slot {
+        width: 48px;
+        height: 48px;
+        border: 2px solid rgba(255, 255, 255, 0.25);
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        transition: border-color 0.15s;
+      }
+      .inv-slot:hover {
+        border-color: #0ff;
+      }
+      .inv-slot canvas {
+        width: 36px;
+        height: 36px;
+        image-rendering: pixelated;
+        pointer-events: none;
+      }
+      .inv-slot .slot-count {
+        position: absolute;
+        bottom: 2px;
+        right: 3px;
+        font-size: 10px;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 1px 1px 0 #000;
+        pointer-events: none;
+      }
+      .inv-label {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 4px;
+      }
+      .inv-divider {
+        border: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin: 10px 0;
+      }
+      #inv-close {
+        display: block;
+        margin: 10px auto 0;
+        padding: 8px 24px;
+        background: rgba(0, 255, 255, 0.15);
+        border: 1px solid #0ff;
+        color: #0ff;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 13px;
+        border-radius: 4px;
+        pointer-events: all;
+      }
+      #inv-close:hover {
+        background: rgba(0, 255, 255, 0.3);
+      }
+
+      /* ---- Crafting Screen ---- */
+      #craft-screen {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+        pointer-events: all;
+      }
+      #craft-screen.open {
+        display: flex;
+      }
+      #craft-panel {
+        background: rgba(30, 30, 30, 0.95);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+        min-width: 500px;
+      }
+      #craft-panel h2 {
+        text-align: center;
+        margin-bottom: 14px;
+        color: #0ff;
+        letter-spacing: 2px;
+        font-size: 16px;
+      }
+      #recipes-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        max-height: 380px;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+      #recipes-list::-webkit-scrollbar {
+        width: 6px;
+      }
+      #recipes-list::-webkit-scrollbar-track {
+        background: #111;
+      }
+      #recipes-list::-webkit-scrollbar-thumb {
+        background: #0ff;
+        border-radius: 3px;
+      }
+      .recipe-card {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 4px;
+        padding: 10px;
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .recipe-card:hover {
+        border-color: #0ff;
+        background: rgba(0, 255, 255, 0.06);
+      }
+      .recipe-card.can-craft {
+        border-color: #0f0;
+      }
+      .recipe-card.can-craft:hover {
+        background: rgba(0, 255, 0, 0.08);
+      }
+      .recipe-name {
+        font-size: 12px;
+        color: #fff;
+        margin-bottom: 4px;
+      }
+      .recipe-cost {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.55);
+      }
+      #craft-close {
+        display: block;
+        margin: 12px auto 0;
+        padding: 8px 24px;
+        background: rgba(0, 255, 255, 0.15);
+        border: 1px solid #0ff;
+        color: #0ff;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 13px;
+        border-radius: 4px;
+        pointer-events: all;
+      }
+      #craft-close:hover {
+        background: rgba(0, 255, 255, 0.3);
+      }
+
+      /* ---- Pause / Menu overlay ---- */
+      #pause-screen {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        z-index: 30;
+        pointer-events: all;
+      }
+      #pause-screen.open {
+        display: flex;
+      }
+      #pause-screen h1 {
+        color: #0ff;
+        font-size: 2.5rem;
+        letter-spacing: 8px;
+        text-shadow: 0 0 20px #0ff;
+        margin-bottom: 20px;
+      }
+      .menu-btn {
+        padding: 12px 48px;
+        background: rgba(0, 0, 0, 0.6);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-family: "Courier New", monospace;
+        font-size: 15px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: 0.2s;
+        pointer-events: all;
+        min-width: 220px;
+        text-align: center;
+        letter-spacing: 2px;
+      }
+      .menu-btn:hover {
+        border-color: #0ff;
+        color: #0ff;
+        background: rgba(0, 255, 255, 0.08);
+      }
+
+      /* ---- Title Screen ---- */
+      #title-screen {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        z-index: 40;
+        pointer-events: all;
+      }
+      #title-screen h1 {
+        color: #0ff;
+        font-size: 3.5rem;
+        letter-spacing: 10px;
+        text-shadow:
+          0 0 30px #0ff,
+          0 0 60px #0ff;
+        animation: titlePulse 2s infinite;
+        margin-bottom: 10px;
+      }
+      #title-screen p {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      @keyframes titlePulse {
+        0%,
+        100% {
+          text-shadow: 0 0 20px #0ff;
+        }
+        50% {
+          text-shadow:
+            0 0 50px #0ff,
+            0 0 100px #0ff;
+        }
+      }
+      #title-canvas {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+      }
+      .title-btn {
+        padding: 14px 60px;
+        background: rgba(0, 0, 0, 0.7);
+        border: 2px solid #0ff;
+        color: #0ff;
+        font-family: "Courier New", monospace;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: 0.2s;
+        pointer-events: all;
+        letter-spacing: 3px;
+      }
+      .title-btn:hover {
+        background: rgba(0, 255, 255, 0.15);
+        transform: scale(1.04);
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+      }
+
+      /* ---- Notification toast ---- */
+      #toast-container {
+        position: fixed;
+        top: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        z-index: 50;
+        pointer-events: none;
+      }
+      .toast {
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid rgba(0, 255, 255, 0.4);
+        color: #0ff;
+        padding: 8px 20px;
+        border-radius: 4px;
+        font-size: 13px;
+        animation:
+          toastIn 0.3s ease,
+          toastOut 0.3s ease 2.7s forwards;
+        text-align: center;
+      }
+      @keyframes toastIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes toastOut {
+        to {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+      }
+
+      /* ---- Tool tip ---- */
+      #tooltip {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 4px 12px;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.75);
+        border-radius: 3px;
+        pointer-events: none;
+        display: none;
+      }
+      #tooltip.show {
+        display: block;
+      }
+
+      /* ---- Death screen ---- */
+      #death-screen {
+        position: fixed;
+        inset: 0;
+        background: rgba(180, 0, 0, 0.5);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        z-index: 35;
+        pointer-events: all;
+      }
+      #death-screen.open {
+        display: flex;
+      }
+      #death-screen h1 {
+        color: #fff;
+        font-size: 3rem;
+        letter-spacing: 6px;
+        animation: titlePulse 1.5s infinite;
+      }
+      #death-screen p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+      }
+
+      /* ---- Loading screen ---- */
+      #loading-screen {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        z-index: 60;
+      }
+      #loading-screen h2 {
+        color: #0ff;
+        letter-spacing: 4px;
+        font-size: 18px;
+      }
+      #loading-bar-wrap {
+        width: 300px;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      #loading-bar {
+        height: 100%;
+        background: #0ff;
+        width: 0%;
+        transition: width 0.1s;
+      }
+      #loading-text {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+      }
+
+      /* ---- Scrollbars ---- */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #0ff;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <h2>BLOCKCRAFT</h2>
+      <div id="loading-bar-wrap"><div id="loading-bar"></div></div>
+      <div id="loading-text">Generating world…</div>
+    </div>
+
+    <!-- Title Screen -->
+    <div id="title-screen" style="display: none">
+      <canvas id="title-canvas"></canvas>
+      <h1>BLOCKCRAFT</h1>
+      <p>Mine. Build. Survive.</p>
+      <button class="title-btn" id="btn-play">▶ PLAY</button>
+      <button class="title-btn" id="btn-how">? HOW TO PLAY</button>
+      <button
+        class="title-btn"
+        id="btn-back"
+        onclick="window.location.href = 'index.html'"
+      >
+        ← BACK TO HUB
+      </button>
+    </div>
+
+    <!-- How to Play -->
+    <div
+      id="how-screen"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.92);
+        z-index: 45;
+        overflow-y: auto;
+        padding: 40px;
+        pointer-events: all;
+      "
+    >
+      <div style="max-width: 600px; margin: auto">
+        <h2
+          style="
+            color: #0ff;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+          "
+        >
+          HOW TO PLAY
+        </h2>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px">
+          <thead>
+            <tr>
+              <th
+                style="
+                  text-align: left;
+                  color: #0ff;
+                  padding: 8px 0;
+                  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                "
+              >
+                Action
+              </th>
+              <th
+                style="
+                  text-align: left;
+                  color: #0ff;
+                  padding: 8px 0;
+                  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                "
+              >
+                Key
+              </th>
+            </tr>
+          </thead>
+          <tbody id="how-table"></tbody>
+        </table>
+        <button
+          class="title-btn"
+          style="
+            margin-top: 24px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+          "
+          onclick="document.getElementById('how-screen').style.display = 'none'"
+        >
+          CLOSE
+        </button>
+      </div>
+    </div>
+
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- UI Overlay -->
+    <div id="ui">
+      <div id="crosshair"></div>
+      <canvas id="minimap" width="120" height="120"></canvas>
+      <div id="debug"></div>
+      <div id="day-indicator"></div>
+      <div id="hud">
+        <div id="bars">
+          <div class="bar-row" id="health-bar"></div>
+          <div style="width: 16px"></div>
+          <div class="bar-row" id="hunger-bar"></div>
+        </div>
+        <div id="xp-bar-wrap"><div id="xp-bar-fill"></div></div>
+        <div id="hotbar"></div>
+        <div id="stats-bar"></div>
+      </div>
+      <div id="tooltip"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Inventory Screen -->
+    <div id="inventory-screen">
+      <div id="inventory-panel">
+        <h2>INVENTORY</h2>
+        <div class="inv-label">Hotbar (1–9)</div>
+        <div class="inv-grid" id="inv-hotbar-grid"></div>
+        <hr class="inv-divider" />
+        <div class="inv-label">Backpack</div>
+        <div class="inv-grid" id="inv-backpack-grid"></div>
+        <button id="inv-close">CLOSE (E)</button>
+      </div>
+    </div>
+
+    <!-- Crafting Screen -->
+    <div id="craft-screen">
+      <div id="craft-panel">
+        <h2>CRAFTING TABLE</h2>
+        <div id="recipes-list"></div>
+        <button id="craft-close">CLOSE (C)</button>
+      </div>
+    </div>
+
+    <!-- Pause Screen -->
+    <div id="pause-screen">
+      <h1>PAUSED</h1>
+      <button class="menu-btn" id="btn-resume">RESUME</button>
+      <button class="menu-btn" id="btn-save">SAVE WORLD</button>
+      <button class="menu-btn" id="btn-load">LOAD WORLD</button>
+      <button class="menu-btn" onclick="window.location.href = 'index.html'">
+        ← MAIN MENU
+      </button>
+    </div>
+
+    <!-- Death Screen -->
+    <div id="death-screen">
+      <h1>YOU DIED</h1>
+      <p id="death-stats"></p>
+      <button class="menu-btn" id="btn-respawn">RESPAWN</button>
+      <button class="menu-btn" onclick="window.location.href = 'index.html'">
+        ← MAIN MENU
+      </button>
+    </div>
+
+    <script src="js/core/SaveManager.js"></script>
+    <script src="js/core/GameBridge.js"></script>
+    <script src="js/core/AudioManager.js"></script>
+    <script src="minecraft.js"></script>
+  </body>
+</html>

@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GameHub — Gaming Portal</title>
+    <link rel="stylesheet" href="Style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="particles"></div>
+    <div id="toast-container"></div>
+
+    <header class="topbar">
+      <div class="logo">GAME<span>HUB</span></div>
+      <div class="topbar-currencies">
+        <div class="currency"><span class="icon">🪙</span><span id="top-coins">0</span></div>
+        <div class="currency gems"><span class="icon">💎</span><span id="top-gems">0</span></div>
+      </div>
+      <div class="user-panel">
+        <div class="avatar" id="user-avatar">P</div>
+        <div class="user-info">
+          <span id="top-username">Player</span>
+          <div class="rank" id="top-rank">Rookie</div>
+        </div>
+      </div>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Menu">☰</button>
+    </header>
+
+    <aside class="sidebar" id="sidebar">
+      <nav>
+        <a href="#dashboard" class="nav-link active" data-section="dashboard">📊 Dashboard</a>
+        <a href="#games" class="nav-link" data-section="games">🎮 Games</a>
+        <a href="#shop" class="nav-link" data-section="shop">🛒 Shop</a>
+        <a href="#profile" class="nav-link" data-section="profile">👤 Profile</a>
+        <a href="#quests" class="nav-link" data-section="quests">📋 Quests</a>
+        <a href="#battlepass" class="nav-link" data-section="battlepass">🎫 Battle Pass</a>
+        <a href="#achievements" class="nav-link" data-section="achievements">🏆 Achievements</a>
+        <a href="#leaderboard" class="nav-link" data-section="leaderboard">📈 Leaderboard</a>
+        <a href="#statistics" class="nav-link" data-section="statistics">📉 Statistics</a>
+        <a href="#settings" class="nav-link" data-section="settings">⚙️ Settings</a>
+      </nav>
+      <div class="sidebar-rewards">
+        <button class="reward-btn" id="daily-reward-btn">🎁 Daily Reward</button>
+        <button class="reward-btn weekly" id="weekly-reward-btn">📦 Weekly Reward</button>
+      </div>
+    </aside>
+
+    <main id="main-content">
+      <!-- DASHBOARD -->
+      <section id="dashboard" class="page-section active">
+        <div class="hero">
+          <h1>PLAY • COMPETE • LEVEL UP</h1>
+          <p id="welcome-msg">Welcome to GameHub — your indie gaming portal.</p>
+          <div class="hero-actions">
+            <button class="btn-primary" onclick="GameHub.navigate('games')">Start Playing</button>
+            <button class="btn-secondary" id="claim-daily-hero">Claim Daily Reward</button>
+          </div>
+        </div>
+
+        <div class="dashboard">
+          <div class="stat-card float"><h3>XP</h3><span id="stat-xp">0</span><div class="xp-bar"><div id="xp-progress" class="xp-fill"></div></div><small id="next-level-text">Next level in 150 XP</small></div>
+          <div class="stat-card float"><h3>Level</h3><span id="stat-level">1</span></div>
+          <div class="stat-card float"><h3>Rank</h3><span id="stat-rank">Rookie</span></div>
+          <div class="stat-card float"><h3>Prestige</h3><span id="stat-prestige">0</span></div>
+          <div class="stat-card float"><h3>Coins</h3><span id="stat-coins">0</span></div>
+          <div class="stat-card float"><h3>Gems</h3><span id="stat-gems">0</span></div>
+          <div class="stat-card float"><h3>Games Played</h3><span id="stat-games">0</span></div>
+          <div class="stat-card float"><h3>Wins</h3><span id="stat-wins">0</span></div>
+          <div class="stat-card float"><h3>Login Streak</h3><span id="stat-streak">0</span> 🔥</div>
+          <div class="stat-card float"><h3>Achievements</h3><span id="stat-achievements">0</span></div>
+        </div>
+
+        <!-- SEARCH & FILTERS -->
+        <div class="search-section">
+          <div class="search-bar-wrapper">
+            <input type="text" id="game-search" class="game-search" placeholder="🔍 Search games..." />
+          </div>
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="arcade">Arcade</button>
+            <button class="filter-btn" data-filter="puzzle">Puzzle</button>
+            <button class="filter-btn" data-filter="action">Action</button>
+            <button class="filter-btn" data-filter="io">IO</button>
+            <button class="filter-btn" data-filter="racing">Racing</button>
+            <button class="filter-btn" data-filter="survival">Survival</button>
+            <button class="filter-btn" data-filter="idle">Idle</button>
+          </div>
+        </div>
+
+        <!-- FEATURED GAMES CAROUSEL -->
+        <div class="featured-section">
+          <h2>Featured Games</h2>
+          <div class="carousel-container">
+            <button class="carousel-nav prev" id="carousel-prev">‹</button>
+            <div class="carousel-viewport">
+              <div class="featured-grid carousel" id="featured-carousel"></div>
+            </div>
+            <button class="carousel-nav next" id="carousel-next">›</button>
+          </div>
+        </div>
+
+        <!-- FAVORITES -->
+        <div class="favorites-section" id="favorites-section" style="display:none">
+          <h2>⭐ Favorites</h2>
+          <div class="game-grid" id="favorites-grid"></div>
+        </div>
+
+        <!-- RECENTLY PLAYED -->
+        <div class="recently-played-section" id="recently-played-section" style="display:none">
+          <h2>📅 Recently Played</h2>
+          <div class="game-grid" id="recently-played-grid"></div>
+        </div>
+
+        <!-- ALL GAMES BY CATEGORY -->
+        <div class="featured-games">
+          <h2>All Games</h2>
+          <div class="game-grid" id="featured-grid"></div>
+        </div>
+      </section>
+
+      <!-- GAMES -->
+      <section id="games" class="page-section">
+        <h2 class="section-title">All Games</h2>
+        <div class="game-grid" id="game-grid"></div>
+      </section>
+
+      <!-- SHOP -->
+      <section id="shop" class="page-section">
+        <h2 class="section-title">Shop</h2>
+        <div class="shop-tabs" id="shop-tabs"></div>
+        <div class="shop-grid" id="shop-grid"></div>
+      </section>
+
+      <!-- PROFILE -->
+      <section id="profile" class="page-section">
+        <h2 class="section-title">Player Profile</h2>
+        <div class="profile-card glass">
+          <div class="profile-header">
+            <div class="profile-avatar" id="profile-avatar">P</div>
+            <div>
+              <input type="text" id="username-input" class="username-input" maxlength="20" placeholder="Username" />
+              <button class="btn-small" id="save-username">Save</button>
+              <p class="profile-title" id="profile-title">Rookie</p>
+            </div>
+          </div>
+          <div class="profile-stats" id="profile-stats"></div>
+          <div class="equipped-section">
+            <h3>Equipped Cosmetics</h3>
+            <div class="equipped-grid" id="equipped-grid"></div>
+          </div>
+          <div class="prestige-section">
+            <h3>Prestige</h3>
+            <p>Reset to level 1 for permanent bonuses. Requires level 50.</p>
+            <button class="btn-prestige" id="prestige-btn">Prestige (+50 Gems)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- QUESTS -->
+      <section id="quests" class="page-section">
+        <h2 class="section-title">Quests & Missions</h2>
+        <div class="quest-columns">
+          <div class="quest-column glass">
+            <h3>📅 Daily Quests</h3>
+            <div id="daily-quests"></div>
+          </div>
+          <div class="quest-column glass">
+            <h3>📆 Weekly Quests</h3>
+            <div id="weekly-quests"></div>
+          </div>
+          <div class="quest-column glass">
+            <h3>🎯 Missions</h3>
+            <div id="mission-quests"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BATTLE PASS -->
+      <section id="battlepass" class="page-section">
+        <h2 class="section-title">Battle Pass</h2>
+        <div class="bp-header glass">
+          <div>
+            <span>Tier <strong id="bp-tier">0</strong> / 30</span>
+            <div class="xp-bar"><div id="bp-progress" class="xp-fill"></div></div>
+          </div>
+          <button class="btn-premium" id="bp-premium-btn">Unlock Premium (500 💎)</button>
+        </div>
+        <div class="bp-track" id="bp-track"></div>
+      </section>
+
+      <!-- ACHIEVEMENTS -->
+      <section id="achievements" class="page-section">
+        <h2 class="section-title">Achievements</h2>
+        <div class="badge-grid" id="achievement-grid"></div>
+      </section>
+
+      <!-- LEADERBOARD -->
+      <section id="leaderboard" class="page-section">
+        <h2 class="section-title">Leaderboards</h2>
+        <div class="lb-tabs">
+          <button class="lb-tab active" data-lb="global">🌍 Global</button>
+          <button class="lb-tab" data-lb="local">📍 Local Scores</button>
+        </div>
+        <div id="lb-global" class="lb-panel active">
+          <table class="lb-table">
+            <thead><tr><th>#</th><th>Player</th><th>Level</th><th>XP</th><th>Wins</th></tr></thead>
+            <tbody id="leaderboard-body"></tbody>
+          </table>
+        </div>
+        <div id="lb-local" class="lb-panel">
+          <select id="lb-game-select" class="lb-select"></select>
+          <table class="lb-table">
+            <thead><tr><th>#</th><th>Player</th><th>Score</th><th>Date</th></tr></thead>
+            <tbody id="local-leaderboard-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- STATISTICS -->
+      <section id="statistics" class="page-section">
+        <h2 class="section-title">Statistics</h2>
+        <div class="stats-grid" id="stats-grid"></div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settings" class="page-section">
+        <h2 class="section-title">Settings</h2>
+        <div class="settings-card glass">
+          <label class="setting-row"><span>Sound Effects</span><input type="checkbox" id="set-sfx" checked /></label>
+          <label class="setting-row"><span>Music</span><input type="checkbox" id="set-music" checked /></label>
+          <label class="setting-row"><span>Particles</span><input type="checkbox" id="set-particles" checked /></label>
+          <label class="setting-row"><span>Screen Shake</span><input type="checkbox" id="set-shake" checked /></label>
+          <label class="setting-row"><span>Mobile Controls</span><input type="checkbox" id="set-mobile" checked /></label>
+          <div class="settings-actions">
+            <button class="btn-secondary" id="export-save">Export Save</button>
+            <button class="btn-secondary" id="import-save">Import Save</button>
+            <button class="btn-danger" id="reset-save">Reset Progress</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>GameHub © 2026 — Cloud-Ready Gaming Portal</footer>
+
+    <script src="js/managers/MobileControlsManager.js"></script>
+    <script src="js/managers/ParticleManager.js"></script>
+    <script src="js/managers/ThemeManager.js"></script>
+    <script src="js/managers/CoinManager.js"></script>
+    <script src="js/core/SaveManager.js"></script>
+    <script src="js/core/XPManager.js"></script>
+    <script src="js/core/AchievementManager.js"></script>
+    <script src="js/core/ShopManager.js"></script>
+    <script src="js/core/QuestManager.js"></script>
+    <script src="js/core/BattlePassManager.js"></script>
+    <script src="js/core/LeaderboardManager.js"></script>
+    <script src="js/core/AudioManager.js"></script>
+    <script src="js/core/UIManager.js"></script>
+    <script src="js/core/PlayerManager.js"></script>
+    <script src="Script.js"></script>
+  </body>
+</html>

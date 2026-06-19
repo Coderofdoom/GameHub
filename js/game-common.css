@@ -1,0 +1,218 @@
+/* GameHub — shared in-game styles */
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;800&display=swap");
+
+:root {
+  --gh-cyan: #00f7ff;
+  --gh-purple: #c300ff;
+  --gh-green: #00ff88;
+  --gh-bg: #050816;
+  --gh-card: rgba(15, 23, 42, 0.85);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body.gh-game {
+  font-family: "Orbitron", sans-serif;
+  background: var(--gh-bg);
+  color: #fff;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+.gh-game-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 10px;
+  position: relative;
+}
+
+.gh-game-header {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: var(--gh-card);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(0, 247, 255, 0.2);
+  border-radius: 16px;
+  margin-bottom: 10px;
+  z-index: 10;
+}
+
+.gh-game-header h1 {
+  font-size: 1.2rem;
+  background: linear-gradient(90deg, var(--gh-cyan), var(--gh-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gh-hud {
+  display: flex;
+  gap: 15px;
+  font-size: 0.85rem;
+}
+
+.gh-hud span { color: var(--gh-cyan); }
+
+.gh-back {
+  text-decoration: none;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 50px;
+  background: linear-gradient(45deg, var(--gh-cyan), var(--gh-purple));
+  font-weight: 700;
+  font-size: 0.8rem;
+  transition: 0.3s;
+}
+
+.gh-back:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(0, 247, 255, 0.4); }
+
+canvas.gh-canvas {
+  border: 2px solid rgba(0, 247, 255, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(0, 247, 255, 0.15);
+  max-width: 100%;
+  touch-action: none;
+}
+
+#gh-pause-menu {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 22, 0.92);
+  backdrop-filter: blur(10px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.gh-pause-panel {
+  background: var(--gh-card);
+  border: 1px solid rgba(0, 247, 255, 0.3);
+  border-radius: 24px;
+  padding: 40px;
+  text-align: center;
+  min-width: 280px;
+}
+
+.gh-pause-panel h2 {
+  font-size: 2rem;
+  margin-bottom: 25px;
+  color: var(--gh-cyan);
+  text-shadow: 0 0 20px var(--gh-cyan);
+}
+
+.gh-pause-panel button, .gh-pause-panel a {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 14px;
+  border: none;
+  border-radius: 50px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  color: #fff;
+  background: linear-gradient(45deg, var(--gh-cyan), var(--gh-purple));
+  transition: 0.3s;
+}
+
+.gh-pause-panel button:hover, .gh-pause-panel a:hover {
+  transform: scale(1.03);
+}
+
+.gh-pause-stats { margin-top: 15px; color: #aaa; font-size: 0.9rem; }
+
+.gh-mobile-controls {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.gh-dpad, .gh-action-btn { pointer-events: auto; }
+
+.gh-dpad {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 4px;
+  justify-items: center;
+}
+
+.gh-dpad-mid { display: flex; gap: 40px; }
+
+.gh-dpad button, .gh-action-btn {
+  width: 56px;
+  height: 56px;
+  border: 2px solid rgba(0, 247, 255, 0.5);
+  border-radius: 14px;
+  background: rgba(0, 247, 255, 0.15);
+  color: var(--gh-cyan);
+  font-size: 1.2rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.gh-action-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  align-self: flex-end;
+  font-weight: 800;
+  background: rgba(195, 0, 255, 0.2);
+  border-color: var(--gh-purple);
+  color: var(--gh-purple);
+}
+
+.gh-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 8, 22, 0.9);
+  z-index: 50;
+}
+
+.gh-overlay h2 {
+  font-size: 2.5rem;
+  color: var(--gh-cyan);
+  text-shadow: 0 0 30px var(--gh-cyan);
+  margin-bottom: 15px;
+}
+
+.gh-overlay p { color: #aaa; margin-bottom: 20px; }
+
+.gh-rewards {
+  display: flex;
+  gap: 20px;
+  margin: 15px 0;
+}
+
+.gh-reward-item {
+  padding: 10px 20px;
+  background: rgba(0, 247, 255, 0.1);
+  border: 1px solid rgba(0, 247, 255, 0.3);
+  border-radius: 12px;
+  color: var(--gh-green);
+}
+
+@media (max-width: 900px) {
+  .gh-game-header { flex-wrap: wrap; gap: 10px; }
+  .gh-hud { flex-wrap: wrap; font-size: 0.75rem; }
+}
+
+@media (min-width: 901px) {
+  .gh-mobile-controls { display: none; }
+}

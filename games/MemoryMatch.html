@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Memory Match — GameHub</title>
+    <link rel="stylesheet" href="js/game-common.css" />
+    <style>
+      .memory-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 80px);
+        gap: 10px;
+        margin: 40px auto;
+        width: fit-content;
+      }
+      .memory-card {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(
+          135deg,
+          rgba(0, 247, 255, 0.3),
+          rgba(195, 0, 255, 0.3)
+        );
+        border: 2px solid var(--cyan);
+        border-radius: 8px;
+        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .memory-card:hover {
+        transform: scale(1.05);
+      }
+      .memory-card.flipped {
+        background: linear-gradient(
+          135deg,
+          rgba(0, 247, 255, 0.6),
+          rgba(195, 0, 255, 0.6)
+        );
+      }
+      .memory-card.matched {
+        background: linear-gradient(
+          135deg,
+          rgba(0, 255, 136, 0.4),
+          rgba(0, 255, 136, 0.2)
+        );
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body class="gh-game">
+    <div class="gh-game-wrap" style="text-align: center; padding: 20px">
+      <header class="gh-game-header">
+        <h1>🎮 MEMORY MATCH</h1>
+        <div class="gh-hud">
+          <span>Matches: <b id="score">0</b></span
+          ><span>Moves: <b id="combo">0</b></span
+          ><span>Coins: <b id="coins">0</b></span>
+        </div>
+        <a class="gh-back" href="Index.html">← Hub</a>
+      </header>
+      <div class="memory-grid" id="grid"></div>
+      <button
+        onclick="game.restart()"
+        class="btn-primary"
+        style="margin-top: 30px"
+      >
+        New Game
+      </button>
+    </div>
+    <script src="js/core/SaveManager.js"></script>
+    <script src="js/core/GameBridge.js"></script>
+    <script src="js/core/AudioManager.js"></script>
+    <script src="js/core/UIManager.js"></script>
+    <script src="js/games/MemoryMatch.js"></script>
+  </body>
+</html>
